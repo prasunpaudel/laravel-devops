@@ -43,12 +43,21 @@ jobs:
       run: composer require --dev squizlabs/php_codesniffer
 
     - name: Run PHP CodeSniffer (Linting)
-      run: ./vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+      run: |
+        if ./vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml; then
+          echo "✅ PHP CodeSniffer passed"
+        else
+          echo "⚠️ PHP CodeSniffer found issues, but continuing..."
+        fi
 
     - name: Run PHP Stan (Static Analysis)
       run: |
         composer require --dev phpstan/phpstan
-        ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=checkstyle > phpstan-report.xml || true
+        if ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=checkstyle > phpstan-report.xml; then
+          echo "✅ PHPStan analysis passed"
+        else
+          echo "⚠️ PHPStan found issues, but continuing..."
+        fi
 
     - name: Install Local PHP Security Checker
       run: |
@@ -56,20 +65,42 @@ jobs:
         chmod +x local-php-security-checker
 
     - name: Run Security Audit (Local PHP Security Checker)
-      run: ./local-php-security-checker --format=json --output=security-report.json || true
+      run: |
+        if ./local-php-security-checker --format=json --output=security-report.json; then
+          echo "✅ Security check passed"
+        else
+          echo "⚠️ Security issues found, but continuing..."
+        fi
 
     - name: Run Composer Security Audit
-      run: composer audit --format=json > composer-audit.json || true
+      run: |
+        if composer audit --format=json > composer-audit.json; then
+          echo "✅ Composer audit passed"
+        else
+          echo "⚠️ Composer audit found issues, but continuing..."
+        fi
 
     - name: Install and Run PHPStan Security Analysis
       run: |
         composer require --dev phpstan/phpstan-symfony
-        ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=json > phpstan-security.json || true
+        if ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=json > phpstan-security.json; then
+          echo "✅ PHPStan security analysis passed"
+        else
+          echo "⚠️ PHPStan security analysis found issues, but continuing..."
+        fi
 
     - name: Run tests with coverage
       run: php artisan test --coverage --coverage-clover=coverage.xml
 
+    - name: Prepare SonarCloud reports
+      run: |
+        # Ensure report files exist (create empty ones if they don't)
+        touch phpcs-report.xml phpstan-report.xml security-report.json composer-audit.json
+        # List files for debugging
+        ls -la *.xml *.json || true
+
     - name: SonarCloud Scan
+      if: github.ref == 'refs/heads/main'
       uses: SonarSource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

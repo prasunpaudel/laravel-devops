@@ -1,6 +1,16 @@
 # SonarCloud Integration Setup
 
-This document explains how to set up SonarCloud integration for code quality analysis and security scanning in your Laravel project.
+This document explains how to set up SonarCloud integration for code quality analysis and### Troubleshooting
+
+### Common Issues:
+1. **SONAR_TOKEN not set**: Add the token to GitHub secrets
+2. **Project key mismatch**: Update sonar-project.properties
+3. **Quality gate failure**: Check SonarCloud dashboard for details
+4. **Coverage issues**: Ensure tests run with --coverage-clover flag
+5. **"Automatic Analysis enabled" error**: 
+   - Go to SonarCloud Project Settings → Analysis Method
+   - Disable "Automatic Analysis"
+   - Choose "GitHub Actions" insteadty scanning in your Laravel project.
 
 ## What's Added
 
@@ -28,6 +38,10 @@ This document explains how to set up SonarCloud integration for code quality ana
 2. Sign in with your GitHub account
 3. Import your repository (`prasunpaudel/laravel-devops`)
 4. Get your project key and organization key
+5. **IMPORTANT**: Disable Automatic Analysis
+   - Go to Project Settings → Analysis Method
+   - Turn OFF "Automatic Analysis"
+   - Select "GitHub Actions" for CI-based analysis
 
 ### Step 2: Update sonar-project.properties
 Update the following values in `sonar-project.properties`:
