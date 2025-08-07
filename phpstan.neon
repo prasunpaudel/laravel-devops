@@ -1,0 +1,19 @@
+parameters:
+    level: 5
+    paths:
+        - app
+        - config
+        - database
+        - routes
+    excludePaths:
+        - vendor
+        - storage
+        - bootstrap/cache
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        # Laravel specific ignores
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
+        - '#Call to an undefined method Illuminate\\Database\\Query\\Builder#'
+        - '#Access to an undefined property App\\Models\\[a-zA-Z0-9\\_]+::\$[a-zA-Z0-9\\_]+#'
+    reportUnmatchedIgnoredErrors: false

@@ -39,8 +39,31 @@ jobs:
     - name: Run migrations
       run: php artisan migrate --force
 
-    - name: Run tests
-      run: php artisan test --coverage
+    - name: Install PHP CodeSniffer for linting
+      run: composer require --dev squizlabs/php_codesniffer
+
+    - name: Run PHP CodeSniffer (Linting)
+      run: ./vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+
+    - name: Run PHP Stan (Static Analysis)
+      run: |
+        composer require --dev phpstan/phpstan
+        ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=checkstyle > phpstan-report.xml || true
+
+    - name: Install Security Checker
+      run: composer require --dev sensiolabs/security-checker
+
+    - name: Run Security Audit
+      run: ./vendor/bin/security-checker security:check composer.lock --format=json > security-report.json || true
+
+    - name: Run tests with coverage
+      run: php artisan test --coverage --coverage-clover=coverage.xml
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Notify success
       if: success()
