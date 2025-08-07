@@ -6,8 +6,9 @@ This document explains how to set up SonarCloud integration for code quality ana
 
 ### 1. Code Quality Tools
 - **PHP CodeSniffer**: Linting tool that checks code against PSR-12 standards
-- **PHPStan**: Static analysis tool for finding bugs and type errors
-- **Security Checker**: Scans composer.lock for known security vulnerabilities
+- **PHPStan**: Static analysis tool for finding bugs and type errors with security checks
+- **Local PHP Security Checker**: Scans composer.lock for known security vulnerabilities
+- **Composer Audit**: Built-in Composer security vulnerability scanner
 
 ### 2. SonarCloud Integration
 - **Code Quality Analysis**: Detects bugs, vulnerabilities, and code smells
@@ -70,7 +71,9 @@ Your CI/CD pipeline now includes these stages:
 The pipeline generates several reports:
 - `phpcs-report.xml`: Code style violations
 - `phpstan-report.xml`: Static analysis issues
-- `security-report.json`: Security vulnerabilities
+- `phpstan-security.json`: Security-focused static analysis
+- `security-report.json`: Security vulnerabilities (Local PHP Security Checker)
+- `composer-audit.json`: Composer security audit results
 - `coverage.xml`: Test coverage data
 
 ## Quality Gates
@@ -87,7 +90,7 @@ You can run these tools locally:
 
 ```bash
 # Install tools
-composer require --dev squizlabs/php_codesniffer phpstan/phpstan sensiolabs/security-checker
+composer require --dev squizlabs/php_codesniffer phpstan/phpstan phpstan/phpstan-symfony
 
 # Run linting
 ./vendor/bin/phpcs
@@ -95,8 +98,11 @@ composer require --dev squizlabs/php_codesniffer phpstan/phpstan sensiolabs/secu
 # Run static analysis
 ./vendor/bin/phpstan analyse
 
-# Run security check
-./vendor/bin/security-checker security:check composer.lock
+# Run security checks
+composer audit
+curl -L https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64 -o local-php-security-checker
+chmod +x local-php-security-checker
+./local-php-security-checker
 
 # Run tests with coverage
 php artisan test --coverage

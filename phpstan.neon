@@ -11,6 +11,10 @@ parameters:
         - bootstrap/cache
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
+    # Security-focused checks
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    checkDynamicProperties: false
     ignoreErrors:
         # Laravel specific ignores
         - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'

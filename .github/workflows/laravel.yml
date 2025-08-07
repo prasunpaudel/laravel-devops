@@ -50,11 +50,21 @@ jobs:
         composer require --dev phpstan/phpstan
         ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=checkstyle > phpstan-report.xml || true
 
-    - name: Install Security Checker
-      run: composer require --dev sensiolabs/security-checker
+    - name: Install Local PHP Security Checker
+      run: |
+        curl -L https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64 -o local-php-security-checker
+        chmod +x local-php-security-checker
 
-    - name: Run Security Audit
-      run: ./vendor/bin/security-checker security:check composer.lock --format=json > security-report.json || true
+    - name: Run Security Audit (Local PHP Security Checker)
+      run: ./local-php-security-checker --format=json --output=security-report.json || true
+
+    - name: Run Composer Security Audit
+      run: composer audit --format=json > composer-audit.json || true
+
+    - name: Install and Run PHPStan Security Analysis
+      run: |
+        composer require --dev phpstan/phpstan-symfony
+        ./vendor/bin/phpstan analyse --configuration=phpstan.neon --error-format=json > phpstan-security.json || true
 
     - name: Run tests with coverage
       run: php artisan test --coverage --coverage-clover=coverage.xml
