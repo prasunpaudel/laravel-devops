@@ -19,6 +19,14 @@ pipeline {
                 }
             }
         }
+        stage('Prepare Laravel App') {
+            steps {
+                bat 'docker-compose run --rm app composer install'
+                bat 'if not exist .env copy .env.example .env'
+                bat 'docker-compose run --rm app php artisan key:generate'
+                bat 'docker-compose run --rm app php artisan migrate --force'
+            }
+        }
         stage('Run Laravel Tests') {
             steps {
                 bat 'docker-compose run --rm app php artisan test'
