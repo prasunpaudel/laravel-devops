@@ -22,6 +22,7 @@ pipeline {
         stage('Prepare Laravel App') {
             steps {
                 bat 'docker-compose run --rm app git config --global --add safe.directory /var/www'
+                bat 'docker-compose run --rm app sh -c "chmod -R 777 /var/www/vendor || true"'
                 bat 'docker-compose run --rm app composer install'
                 bat 'if not exist .env copy .env.example .env'
                 bat 'docker-compose run --rm app php artisan key:generate'
