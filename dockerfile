@@ -11,11 +11,16 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy existing application code
 COPY . /var/www
+
+# Make sure Laravel directories exist
+RUN mkdir -p /var/www/storage/framework/views /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/storage /var/www/storage/framework/views /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/storage/framework/views /var/www/bootstrap/cache
 
 # Change current user to www-data
 USER www-data
@@ -23,4 +28,4 @@ USER www-data
 # Expose port 9000
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
