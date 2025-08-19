@@ -21,11 +21,11 @@ pipeline {
         }
         stage('Prepare Laravel App') {
             steps {
-                bat 'docker-compose run --rm app git config --global --add safe.directory /var/www'
-                bat 'docker-compose run --rm app sh -c "mkdir -p /var/www/vendor /var/www/storage /var/www/bootstrap/cache"'
-                bat 'docker-compose run --rm app sh -c "chown -R www-data:www-data /var/www/vendor /var/www/storage /var/www/bootstrap/cache || true"'
-                bat 'docker-compose run --rm app sh -c "chmod -R 777 /var/www/vendor /var/www/storage /var/www/bootstrap/cache || true"'
-                bat 'docker-compose run --rm app composer install'
+                bat 'docker-compose run --rm --user root app git config --global --add safe.directory /var/www'
+                bat 'docker-compose run --rm --user root app sh -c "mkdir -p /var/www/vendor /var/www/storage /var/www/bootstrap/cache"'
+                bat 'docker-compose run --rm --user root app sh -c "chown -R www-data:www-data /var/www/vendor /var/www/storage /var/www/bootstrap/cache || true"'
+                bat 'docker-compose run --rm --user root app sh -c "chmod -R 777 /var/www/vendor /var/www/storage /var/www/bootstrap/cache || true"'
+                bat 'docker-compose run --rm --user root app composer install'
                 bat 'if not exist .env copy .env.example .env'
                 bat 'docker-compose run --rm app php artisan key:generate'
                 bat 'docker-compose run --rm app php artisan migrate --force'
