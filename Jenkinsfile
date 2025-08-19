@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Run Laravel Tests') {
             steps {
-                sh 'docker-compose run --rm app php artisan test'
+                bat 'docker-compose run --rm app php artisan test'
             }
         }
         stage('Push to Docker Hub') {
